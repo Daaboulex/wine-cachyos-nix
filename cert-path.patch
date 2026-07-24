@@ -1,0 +1,22 @@
+Also look for root certificates at $NIX_SSL_CERT_FILE.
+
+Carried over from nixpkgs' wine (pkgs/applications/emulators/wine/cert-path.patch)
+and re-anchored: the CachyOS tree adds a WINE_ADDITIONAL_CERTS_DIR block after the
+known-locations loop, so the upstream hunk no longer applies here.
+
+diff --git a/dlls/crypt32/unixlib.c b/dlls/crypt32/unixlib.c
+--- a/dlls/crypt32/unixlib.c
++++ b/dlls/crypt32/unixlib.c
+@@ -664,8 +664,12 @@ static void load_root_certs(void)
+     for (i = 0; i < ARRAY_SIZE(CRYPT_knownLocations) && list_empty(&root_cert_list); i++)
+         import_certs_from_path( CRYPT_knownLocations[i], TRUE );
+
+     if ((additional_dir = getenv( "WINE_ADDITIONAL_CERTS_DIR" )))
+         import_certs_from_path( additional_dir, TRUE );
++
++    char *nix_cert_file = getenv("NIX_SSL_CERT_FILE");
++    if (nix_cert_file != NULL)
++        import_certs_from_path(nix_cert_file, TRUE);
+ }
+
+ static NTSTATUS enum_root_certs( void *args )

@@ -1,0 +1,37 @@
+{
+  "package": "wine-cachyos",
+  "upstream": {
+    "type": "github-tag",
+    "owner": "CachyOS",
+    "repo": "wine-cachyos",
+    "tagFilter": "-wine$"
+  },
+  "packageFile": "package.nix",
+  "versionFile": "sources.nix",
+  "hashes": [
+    {
+      "field": "hash",
+      "file": "sources.nix"
+    }
+  ],
+  "platforms": {
+    "aarch64-linux": "x86-only upstream (PKGBUILD arch=(x86_64)); the build carries Proton's -march=nocona/-mfpmath=sse x86 flags"
+  },
+  "verify": {
+    "binary": "wine",
+    "args": "--version",
+    "check": "wrapper"
+  },
+  "description": "Wine-CachyOS packaged for NixOS - Wine with the CachyOS and Proton patch set, overlay and NixOS module",
+  "topics": [
+    "nix",
+    "nixos",
+    "flake",
+    "nixos-module",
+    "wine",
+    "wine-cachyos",
+    "cachyos",
+    "proton",
+    "gaming"
+  ]
+}
