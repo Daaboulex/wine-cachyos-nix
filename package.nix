@@ -11,21 +11,19 @@
   util-linux,
   tag,
   hash,
+  geckoVersion,
+  geckoHash32,
+  geckoHash64,
+  monoVersion,
+  monoHash,
+  xaliaVersion,
+  xaliaHash,
 }:
 let
   version = lib.replaceStrings [ "-" ] [ "." ] (
     lib.removeSuffix "-wine" (lib.removePrefix "cachyos-" tag)
   );
   major = lib.head (builtins.match "cachyos-([0-9]+)\\..*" tag);
-
-  geckoVersion = "2.47.4";
-  monoVersion = "10.4.1";
-  xaliaVersion = "0.4.8";
-
-  gecko32Hash = "sha256-Js7MR3BrCRkI9/gUvdsHTGG+uAYzGOnvxaf3iYV3k9Y=";
-  gecko64Hash = "sha256-5ZC32YijLWqkzx2Ko6o9M3Zv3Uz0yJwtzCCV7LKNBm8=";
-  monoHash = "sha256-Bx9LKIfhyXoR15H/PWW+lCnu1t7EwnCIiL/VRro1jiM=";
-  xaliaHash = "sha256-09GVpyVTiXAX8tR1y55/+J4ud3LE6TF0KT+taKnG13o=";
 
   geckoMsi =
     arch: geckoHash:
@@ -107,8 +105,8 @@ in
 
   postInstall = (old.postInstall or "") + ''
     install -d "$out/share/wine/gecko" "$out/share/wine/mono" "$out/share/xalia"
-    ln -s ${geckoMsi "x86" gecko32Hash} "$out/share/wine/gecko/wine-gecko-${geckoVersion}-x86.msi"
-    ln -s ${geckoMsi "x86_64" gecko64Hash} "$out/share/wine/gecko/wine-gecko-${geckoVersion}-x86_64.msi"
+    ln -s ${geckoMsi "x86" geckoHash32} "$out/share/wine/gecko/wine-gecko-${geckoVersion}-x86.msi"
+    ln -s ${geckoMsi "x86_64" geckoHash64} "$out/share/wine/gecko/wine-gecko-${geckoVersion}-x86_64.msi"
     ln -s ${monoMsi} "$out/share/wine/mono/wine-mono-${monoVersion}-x86.msi"
     cp -r ${xalia}/. "$out/share/xalia/"
   '';

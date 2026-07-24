@@ -7,18 +7,38 @@ let
 
   majorOf = tag: lib.head (builtins.match "cachyos-([0-9]+)\\..*" tag);
 
-  mk = tag: hash: pkgs.callPackage ./package.nix { inherit tag hash; };
+  runtimeKeys = [
+    "geckoVersion"
+    "geckoHash32"
+    "geckoHash64"
+    "monoVersion"
+    "monoHash"
+    "xaliaVersion"
+    "xaliaHash"
+  ];
 
-  entry = tag: hash: {
+  rolling = {
+    inherit (sources) hash;
+  }
+  // lib.getAttrs runtimeKeys sources;
+
+  pinSpec = pin: { hash = pin.srcHash; } // lib.getAttrs runtimeKeys pin;
+
+  mk = tag: spec: pkgs.callPackage ./package.nix ({ inherit tag; } // spec);
+
+  entry = tag: spec: {
     name = "v${majorOf tag}";
-    value = mk tag hash;
+    value = mk tag spec;
   };
 
   # Appended last so the rolling version always owns its own major.
   channels =
-    lib.listToAttrs (lib.mapAttrsToList entry sources.pins ++ [ (entry sources.version sources.hash) ])
+    lib.listToAttrs (
+      lib.mapAttrsToList (tag: pin: entry tag (pinSpec pin)) sources.pins
+      ++ [ (entry sources.version rolling) ]
+    )
     // {
-      latest = mk sources.version sources.hash;
+      latest = mk sources.version rolling;
     };
 in
 {

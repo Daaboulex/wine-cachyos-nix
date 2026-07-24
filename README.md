@@ -74,6 +74,31 @@ Upstream advances this stream slowly: the newest `*-wine` tag as of 2026-07-24 i
 `*-proton-*` streams, which are not this package - so this flake does not
 fabricate an `11` channel out of them.
 
+## Staying in step with upstream
+
+Nothing this flake mirrors from upstream is left to be noticed by hand. Two
+checks run in `nix flake check`, so they gate every push, and also gate the
+daily updater's verification build - a drift cannot be committed, and the
+standard's workflow files the issue.
+
+- **`runtime-pins`** reads each channel's own source tree and asserts the Gecko
+  and Mono versions it ships are exactly the ones `dlls/appwiz.cpl/addons.c`
+  declares. Ship the wrong Mono and Wine silently asks the user to download it
+  at prefix creation while every build stays green - this makes that
+  impossible. It needs only the fetched source, so it fails in seconds rather
+  than after a full compile, and it is checked per channel because different
+  Wine majors want different runtimes.
+- **`upstream-recipe`** pins CachyOS's own `PKGBUILD` as a flake input, so the
+  weekly `flake.lock` refresh re-reads it. It compares the Gecko, Mono and Xalia
+  versions and every `configure` flag against what this flake actually passes,
+  and names the file to edit when they diverge. The comparison only applies while
+  upstream's `_srctag` matches the packaged tag - when upstream moves first it
+  says so and passes, because the daily updater is what advances the tag.
+
+Dependencies themselves are covered by construction: every `--with-*` is passed
+explicitly, so a dependency that ever goes missing fails the build instead of
+being autodetected away into a silently reduced Wine.
+
 ## Architecture
 
 `x86_64-linux` only. Upstream declares `arch=(x86_64)` and the build carries x86-specific flags (`-march=nocona`, `-mfpmath=sse`); the reason is recorded in `.github/update.json` `platforms`.
