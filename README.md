@@ -162,7 +162,4 @@ Xalia (upstream's gamepad-driven UI navigator) is installed at `share/xalia` and
 The packaging is MIT. Wine itself is LGPL-2.1-or-later; Gecko, Mono, and Xalia carry their own licences and are fetched from their upstreams at build time - this flake redistributes nothing.
 
 <!-- BEGIN generated:footer -->
----
-
-*Maintained as part of the [Daaboulex](https://github.com/Daaboulex) NixOS ecosystem.*
 <!-- END generated:footer -->
