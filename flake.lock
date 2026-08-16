@@ -3,11 +3,11 @@
     "cachyos-pkgbuilds": {
       "flake": false,
       "locked": {
-        "lastModified": 1786237759,
-        "narHash": "sha256-lcRDhxJum5k4nI4llBKjQ+yO2RGY/1Pp469fBnRjjkE=",
+        "lastModified": 1786817935,
+        "narHash": "sha256-f+tAhR5nQuiTsX/oXfj+WVgf8fHA0URkLva8S11Xwi8=",
         "owner": "CachyOS",
         "repo": "CachyOS-PKGBUILDS",
-        "rev": "c927394e7c2c7664ccb1762babd5443916a53217",
+        "rev": "15693f8ee8445d8247607d069e3bb0843742eb84",
         "type": "github"
       },
       "original": {
