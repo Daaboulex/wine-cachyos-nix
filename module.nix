@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  cachyosPkgbuilds,
   ...
 }:
 let
@@ -64,22 +65,8 @@ in
       };
     };
 
-    fonts.fontconfig.localConf = lib.mkIf cfg.fontAliases.enable ''
-      <alias binding="same">
-        <family>MS Shell Dlg</family>
-        <accept><family>Microsoft Sans Serif</family></accept>
-        <default><family>sans-serif</family></default>
-      </alias>
-      <alias binding="same">
-        <family>MS Shell Dlg 2</family>
-        <accept><family>Tahoma</family></accept>
-        <default><family>sans-serif</family></default>
-      </alias>
-      <alias binding="same">
-        <family>MS Sans Serif</family>
-        <prefer><family>Microsoft Sans Serif</family></prefer>
-        <default><family>sans-serif</family></default>
-      </alias>
-    '';
+    fonts.fontconfig.confPackages = lib.mkIf cfg.fontAliases.enable [
+      (pkgs.callPackage ./font-aliases.nix { src = cachyosPkgbuilds; })
+    ];
   };
 }

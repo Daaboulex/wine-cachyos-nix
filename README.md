@@ -49,7 +49,8 @@ This flake builds it from source in Wine's **new WoW64** mode (`--enable-archs=x
 | `-s` in the host `CFLAGS` | dropped for the host build, kept for the PE cross build | Nix strips ELF output in `fixupPhase`; `-s` on the host link would fight the RPATH handling Wine needs. PE files are not touched by that phase, so the flag stays where it still does work. |
 | `LDFLAGS="-Wl,-O1,--sort-common,--as-needed"` | not set for the host link | nixpkgs owns host link flags (RPATH injection, hardening). `CROSSLDFLAGS` is applied unchanged. |
 | Gecko/Mono shipped as extracted tarballs | shipped as the `.msi` files | `dlls/appwiz.cpl/addons.c` looks for `wine-gecko-<ver>-<arch>.msi` under `$WINEDATADIR`; the `.msi` layout is what nixpkgs proves works. Same versions either way. |
-| `modules-load.d`, `binfmt.d`, and a fontconfig drop-in | native NixOS options in `module.nix` | Declarative equivalents, no vendored config files. |
+| `modules-load.d` and `binfmt.d` | native NixOS options in `module.nix` | Declarative equivalents, no vendored config files. |
+| `30-win32-aliases.conf` installed into fontconfig's `conf.avail` and linked into `conf.default` | the same file, read from the pinned PKGBUILD input, validated against fontconfig's DTD at build time and installed as `/etc/fonts/conf.d/30-win32-aliases.conf` | One source: the bytes are upstream's and the weekly lock refresh re-reads them. A conf.d drop-in is a complete document of its own; `fonts.fontconfig.localConf` is written raw by NixOS, so it stays free for the user's own aliases. |
 | builds against Arch's toolchain | pre-10 channels add `-std=gnu17` | Wine trees older than 10 use `bool` as an identifier, which C23 - gcc 15's default - reserves as a keyword. Same one-flag fix nixpkgs applies to its own older Wine variant. |
 
 ## Channels

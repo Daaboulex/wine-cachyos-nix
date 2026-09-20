@@ -29,7 +29,10 @@
       imports = [ inputs.std.flakeModules.base ];
 
       flake.overlays.default = import ./overlay.nix;
-      flake.nixosModules.default = import ./module.nix;
+      flake.nixosModules.default = {
+        imports = [ ./module.nix ];
+        _module.args.cachyosPkgbuilds = inputs.cachyos-pkgbuilds;
+      };
 
       perSystem =
         {
@@ -51,12 +54,14 @@
             inherit (inputs) nixpkgs;
             inherit system;
             overlays = [ self.overlays.default ];
-            module = ./module.nix;
+            module = self.nixosModules.default;
             config.programs.wine-cachyos = {
               enable = true;
               binfmt.enable = true;
             };
           };
+
+          checks.font-aliases = pkgs.callPackage ./font-aliases.nix { src = inputs.cachyos-pkgbuilds; };
 
           checks.upstream-recipe =
             let
