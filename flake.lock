@@ -3,11 +3,11 @@
     "cachyos-pkgbuilds": {
       "flake": false,
       "locked": {
-        "lastModified": 1791052270,
-        "narHash": "sha256-QyELqrKwbmI9YWK5oCbO2yR+FTPmX7Y+dND4bjCGSxQ=",
+        "lastModified": 1791650355,
+        "narHash": "sha256-5e84oL7CjDIkntOgCza+yvuWYc/iN+NaAkOQnuItUS0=",
         "owner": "CachyOS",
         "repo": "CachyOS-PKGBUILDS",
-        "rev": "903a7d31d6b3a8dc1cc254c4601f20ff4a0fd66e",
+        "rev": "c7cf5b4f2c70f28ed50601b3f75b19da93ba663f",
         "type": "github"
       },
       "original": {
@@ -91,11 +91,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1790822859,
-        "narHash": "sha256-69xHQhAeMAD2wDXO7T2pcOZIF9Sga2W+JkmY2a11Ops=",
+        "lastModified": 1791594108,
+        "narHash": "sha256-XK4KceonkwD8LuMAt/vNrz982mXJM5jeHAxMwsUXXAQ=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "c59305bab2065cfecc4944690d9eedbb56f3a9fa",
+        "rev": "6510408d147d8c5e6d76043e899e9251756f6a75",
         "type": "github"
       },
       "original": {
