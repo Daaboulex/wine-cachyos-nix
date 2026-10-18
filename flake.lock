@@ -3,11 +3,11 @@
     "cachyos-pkgbuilds": {
       "flake": false,
       "locked": {
-        "lastModified": 1791650355,
-        "narHash": "sha256-5e84oL7CjDIkntOgCza+yvuWYc/iN+NaAkOQnuItUS0=",
+        "lastModified": 1792279192,
+        "narHash": "sha256-9Hl1++daMvqp3Qo2Gf3ngoawozV4SbX2KcWzVjd6uRw=",
         "owner": "CachyOS",
         "repo": "CachyOS-PKGBUILDS",
-        "rev": "c7cf5b4f2c70f28ed50601b3f75b19da93ba663f",
+        "rev": "f4323a0774505a97a59b34ee929e5571d9dd0315",
         "type": "github"
       },
       "original": {
@@ -76,11 +76,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790500375,
-        "narHash": "sha256-XN3sDtn8TU9hAc9xqZ+SqRB/HHm2wjxM6aSWYLJU+oo=",
+        "lastModified": 1791909798,
+        "narHash": "sha256-VAhpCOmrun/KXimYfR8NM88bciKCui7CqHHhThSzgag=",
         "owner": "cachix",
         "repo": "git-hooks.nix",
-        "rev": "a0e4241b51206fbcbf52fd322eb5f0cd80f153c4",
+        "rev": "1ba1dbfe28738c9a71c266be6efa5b89e75491a9",
         "type": "github"
       },
       "original": {
@@ -91,11 +91,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1791594108,
-        "narHash": "sha256-XK4KceonkwD8LuMAt/vNrz982mXJM5jeHAxMwsUXXAQ=",
+        "lastModified": 1792094642,
+        "narHash": "sha256-zp8ToDMnqZcu4o4IH9pdwXFXGp7yLm/M0dEnNWnyd7I=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "6510408d147d8c5e6d76043e899e9251756f6a75",
+        "rev": "fe13242281a67641c0102cdb1087f0ebe586c7df",
         "type": "github"
       },
       "original": {
