@@ -63,7 +63,7 @@ in
     inherit hash;
   };
 
-  patches = [ ./cert-path.patch ];
+  patches = [ ];
 
   nativeBuildInputs = old.nativeBuildInputs ++ [
     autoconf
