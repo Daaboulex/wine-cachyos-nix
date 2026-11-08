@@ -66,8 +66,11 @@ live truth is that file. Every channel hangs off the package as passthru.
 `latest` rolls with every upstream `*-wine` tag; each `v<major>` freezes one
 major so a prefix built against it keeps working after upstream moves on. The
 rolling version always owns its own major, so when CachyOS cuts the first
-`cachyos-11.0-<date>-wine` tag the updater picks it up as `latest` + `v11` and
-the 10.x line stays available as `v10` by moving it into `pins`.
+`cachyos-11.0-<date>-wine` tag the updater picks it up as `latest` + `v11` and,
+reading `majorPattern` in `.github/update.json`, copies the last 10.x release
+into `pins` itself, so `v10` stays available with no hand edit. The rolling
+release and the pins sit between the `# std:rolling` and `# std:pins` markers
+that copy reads.
 
 Upstream advances this stream slowly: the newest `*-wine` tag as of 2026-07-24 is
 `cachyos-10.0-20260425-wine` (Wine 10.0), while mainline Wine is at 11.0 stable /
