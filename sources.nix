@@ -1,4 +1,5 @@
 {
+  # std:rolling-begin
   version = "cachyos-10.0-20260425-wine";
   hash = "sha256-ZYalZ4ivN0rxhDdzr2IvQznB+UDrO926+yqMx199h2o=";
   geckoVersion = "2.47.4";
@@ -8,10 +9,11 @@
   monoHash = "sha256-Bx9LKIfhyXoR15H/PWW+lCnu1t7EwnCIiL/VRro1jiM=";
   xaliaVersion = "0.4.8";
   xaliaHash = "sha256-09GVpyVTiXAX8tR1y55/+J4ud3LE6TF0KT+taKnG13o=";
-
+  # std:rolling-end
   pins = {
+    # std:pins-begin
     "cachyos-9.0-20250426-wine" = {
-      srcHash = "sha256-mPKDehs8hFckfWbxPRQonTwt/tf6I8hpnPOfvUlbimM=";
+      hash = "sha256-mPKDehs8hFckfWbxPRQonTwt/tf6I8hpnPOfvUlbimM=";
       geckoVersion = "2.47.4";
       geckoHash32 = "sha256-Js7MR3BrCRkI9/gUvdsHTGG+uAYzGOnvxaf3iYV3k9Y=";
       geckoHash64 = "sha256-5ZC32YijLWqkzx2Ko6o9M3Zv3Uz0yJwtzCCV7LKNBm8=";
@@ -20,5 +22,6 @@
       xaliaVersion = "0.4.8";
       xaliaHash = "sha256-09GVpyVTiXAX8tR1y55/+J4ud3LE6TF0KT+taKnG13o=";
     };
+    # std:pins-end
   };
 }

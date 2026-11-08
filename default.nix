@@ -22,7 +22,7 @@ let
   }
   // lib.getAttrs runtimeKeys sources;
 
-  pinSpec = pin: { hash = pin.srcHash; } // lib.getAttrs runtimeKeys pin;
+  pinSpec = pin: { inherit (pin) hash; } // lib.getAttrs runtimeKeys pin;
 
   mk = tag: spec: pkgs.callPackage ./package.nix ({ inherit tag; } // spec);
 
