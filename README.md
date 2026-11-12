@@ -38,9 +38,6 @@ This flake builds it from source in Wine's **new WoW64** mode (`--enable-archs=x
 - **Inherits nixpkgs' Wine closure** - the derivation is nixpkgs' `wineWow64Packages.stableFull` with upstream's source, patch set, and build flags applied on top. Every support flag, dependency, and NixOS integration nixpkgs validates comes along; only what CachyOS actually changes is overridden.
 - **Faithful build flags** - Proton's portable optimization set verbatim from upstream's PKGBUILD (`-march=nocona -mtune=core-avx2 -mfpmath=sse`, AVX/AVX2/AVX-512 explicitly off), so the result runs on any x86-64 machine in a mixed fleet.
 - **Faithful runtime pins** - Gecko 2.47.4 and Mono 10.4.1, the exact versions this Wine tree's `dlls/appwiz.cpl/addons.c` asks for, plus Xalia 0.4.8.
-- **Package integrity** - SRI hashes on every fetched artifact, verified on each build.
-- **Upstream trust** - automated tag detection, hash recomputation, and a verified test build, auto-committed to `main`.
-- **Stale cleanup** - weekly `flake.lock` refresh (pushed only if it still builds); orphaned update branches older than 30 days are deleted.
 
 ### Deliberate deviations from the Arch package
 
@@ -49,13 +46,13 @@ This flake builds it from source in Wine's **new WoW64** mode (`--enable-archs=x
 | `-s` in the host `CFLAGS` | dropped for the host build, kept for the PE cross build | Nix strips ELF output in `fixupPhase`; `-s` on the host link would fight the RPATH handling Wine needs. PE files are not touched by that phase, so the flag stays where it still does work. |
 | `LDFLAGS="-Wl,-O1,--sort-common,--as-needed"` | not set for the host link | nixpkgs owns host link flags (RPATH injection, hardening). `CROSSLDFLAGS` is applied unchanged. |
 | Gecko/Mono shipped as extracted tarballs | shipped as the `.msi` files | `dlls/appwiz.cpl/addons.c` looks for `wine-gecko-<ver>-<arch>.msi` under `$WINEDATADIR`; the `.msi` layout is what nixpkgs proves works. Same versions either way. |
-| `modules-load.d` and `binfmt.d` | native NixOS options in `module.nix` | Declarative equivalents, no vendored config files. |
+| `modules-load.d` and `binfmt.d` | native NixOS options in [`module.nix`](./module.nix) | Declarative equivalents, no vendored config files. |
 | `30-win32-aliases.conf` installed into fontconfig's `conf.avail` and linked into `conf.default` | the same file, read from the pinned PKGBUILD input, validated against fontconfig's DTD at build time and installed as `/etc/fonts/conf.d/30-win32-aliases.conf` | One source: the bytes are upstream's and the weekly lock refresh re-reads them. A conf.d drop-in is a complete document of its own; `fonts.fontconfig.localConf` is written raw by NixOS, so it stays free for the user's own aliases. |
 | builds against Arch's toolchain | pre-10 channels add `-std=gnu17` | Wine trees older than 10 use `bool` as an identifier, which C23 - gcc 15's default - reserves as a keyword. Same one-flag fix nixpkgs applies to its own older Wine variant. |
 
 ## Channels
 
-`sources.nix` holds the rolling `version` plus a `pins` map of frozen tags; the
+[`sources.nix`](./sources.nix) holds the rolling `version` plus a `pins` map of frozen tags; the
 live truth is that file. Every channel hangs off the package as passthru.
 
 | Channel | Attribute | Tag |
@@ -67,16 +64,10 @@ live truth is that file. Every channel hangs off the package as passthru.
 major so a prefix built against it keeps working after upstream moves on. The
 rolling version always owns its own major, so when CachyOS cuts the first
 `cachyos-11.0-<date>-wine` tag the updater picks it up as `latest` + `v11` and,
-reading `majorPattern` in `.github/update.json`, copies the last 10.x release
+reading `majorPattern` in [`.github/update.json`](./.github/update.json), copies the last 10.x release
 into `pins` itself, so `v10` stays available with no hand edit. The rolling
 release and the pins sit between the `# std:rolling` and `# std:pins` markers
 that copy reads.
-
-Upstream advances this stream slowly: the newest `*-wine` tag as of 2026-07-24 is
-`cachyos-10.0-20260425-wine` (Wine 10.0), while mainline Wine is at 11.0 stable /
-11.13 development. CachyOS's 11.0 work currently lives only in the `*-base` and
-`*-proton-*` streams, which are not this package - so this flake does not
-fabricate an `11` channel out of them.
 
 ## Staying in step with upstream
 
@@ -93,7 +84,7 @@ standard's workflow files the issue.
   than after a full compile, and it is checked per channel because different
   Wine majors want different runtimes.
 - **`upstream-recipe`** pins CachyOS's own `PKGBUILD` as a flake input, so the
-  weekly `flake.lock` refresh re-reads it. It compares the Gecko, Mono and Xalia
+  weekly [`flake.lock`](./flake.lock) refresh re-reads it. It compares the Gecko, Mono and Xalia
   versions and every `configure` flag against what this flake actually passes,
   and names the file to edit when they diverge. The comparison only applies while
   upstream's `_srctag` matches the packaged tag - when upstream moves first it
@@ -105,7 +96,7 @@ being autodetected away into a silently reduced Wine.
 
 ## Architecture
 
-`x86_64-linux` only. Upstream declares `arch=(x86_64)` and the build carries x86-specific flags (`-march=nocona`, `-mfpmath=sse`); the reason is recorded in `.github/update.json` `platforms`.
+`x86_64-linux` only. Upstream declares `arch=(x86_64)` and the build carries x86-specific flags (`-march=nocona`, `-mfpmath=sse`); the reason is recorded in [`.github/update.json`](./.github/update.json) `platforms`.
 
 <!-- BEGIN generated:installation -->
 ## Installation
@@ -125,7 +116,7 @@ Then either take the package directly:
 
 ```nix
 environment.systemPackages = [
-  inputs.wine-cachyos.packages.${pkgs.system}.default
+  inputs.wine-cachyos.packages.${pkgs.stdenv.hostPlatform.system}.default
 ];
 ```
 
