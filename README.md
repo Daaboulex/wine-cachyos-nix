@@ -1,107 +1,28 @@
 # wine-cachyos (Nix)
 
-<!-- BEGIN generated:badges -->
-[![CI](https://github.com/Daaboulex/wine-cachyos-nix/actions/workflows/ci.yml/badge.svg)](https://github.com/Daaboulex/wine-cachyos-nix/actions/workflows/ci.yml)
-[![NixOS unstable](https://img.shields.io/badge/NixOS-unstable-78C0E8?logo=nixos&logoColor=white)](https://nixos.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-<!-- END generated:badges -->
+[wine-cachyos](https://github.com/CachyOS/wine-cachyos) from the
+[CachyOS](https://cachyos.org) team, packaged for NixOS. It is Valve's Proton
+Wine tree with CachyOS patches, built as a plain system Wine for Bottles,
+Lutris, Heroic or a bare `wine` command. It is not a Steam compatibility tool.
+That one is `proton-cachyos`, packaged in
+[proton-cachyos-nix](https://github.com/Daaboulex/proton-cachyos-nix).
 
-Nix flake packaging for [wine-cachyos](https://github.com/CachyOS/wine-cachyos) by the [CachyOS](https://cachyos.org) team - Valve's Proton Wine tree with CachyOS patches, built as a general-purpose system Wine (not a Steam compatibility tool).
+It builds for `x86_64-linux` only. The checks prove that every channel builds,
+carries the 64-bit and the 32-bit Windows libraries and reports its version. No
+check starts a Windows program.
 
-<!-- BEGIN generated:upstream -->
-## Upstream
+## What you get
 
-| | |
-|---|---|
-| **Project** | [CachyOS/wine-cachyos](https://github.com/CachyOS/wine-cachyos) |
-| **License** | LGPL-2.1-or-later (Wine) |
-| **Tracked** | GitHub tags matching `-wine` (`cachyos-<version>-<date>-wine`) |
+- `wine-cachyos`, the package: Wine with Gecko, Mono and Xalia. One 64-bit
+  build runs both 32-bit and 64-bit Windows programs, with no 32-bit ELF stack.
+- A NixOS module, `programs.wine-cachyos`, that installs the package and sets
+  up what upstream ships as Arch drop-ins: the `ntsync` kernel module, the
+  Win32 font aliases and, if you ask for it, the binfmt registration.
+- A frozen channel per Wine major next to the rolling one.
 
-<!-- END generated:upstream -->
+## Install
 
-## What Is This?
-
-CachyOS ships two things from one Wine tree. `proton-cachyos` is a **Steam Play compatibility tool** - a whole runtime bundle - and is packaged separately in [proton-cachyos-nix](https://github.com/Daaboulex/proton-cachyos-nix). `wine-cachyos` is a **plain system Wine** you point Bottles, Lutris, Heroic, or a bare `wine` invocation at.
-
-| | `proton-cachyos` | `wine-cachyos` (this repo) |
-|---|---|---|
-| What it is | Steam Play compatibility tool | A system Wine (`bin/wine`) |
-| Ships | Wine + DXVK + VKD3D-Proton + Steam Linux Runtime glue + `proton` entry script + `compatibilitytool.vdf` | Wine only (plus Gecko, Mono, Xalia) |
-| Delivered as | prebuilt release tarballs | source only - built from `*-wine` git tags |
-| Consumed by | Steam, via `programs.steam.extraCompatPackages` | Bottles, Lutris, Heroic, plain `wine` |
-| Upstream tag stream | `*-proton-slr` / `*-proton-native` | `*-wine` |
-
-They are siblings, not rivals: at the same date the `*-wine` tag is the `*-proton-slr` tag plus roughly 60 commits that turn the Proton tree into a standalone Wine, and both sit about a thousand commits above the shared `*-base` tag. Upstream advances the two streams independently, so their versions differ.
-
-This flake builds it from source in Wine's **new WoW64** mode (`--enable-archs=x86_64,i386`), so one 64-bit build runs both 32-bit and 64-bit Windows programs with no 32-bit ELF stack.
-
-- **Inherits nixpkgs' Wine closure** - the derivation is nixpkgs' `wineWow64Packages.stableFull` with upstream's source, patch set, and build flags applied on top. Every support flag, dependency, and NixOS integration nixpkgs validates comes along; only what CachyOS actually changes is overridden.
-- **Faithful build flags** - Proton's portable optimization set verbatim from upstream's PKGBUILD (`-march=nocona -mtune=core-avx2 -mfpmath=sse`, AVX/AVX2/AVX-512 explicitly off), so the result runs on any x86-64 machine in a mixed fleet.
-- **Faithful runtime pins** - Gecko 2.47.4 and Mono 10.4.1, the exact versions this Wine tree's `dlls/appwiz.cpl/addons.c` asks for, plus Xalia 0.4.8.
-
-### Deliberate deviations from the Arch package
-
-| Upstream does | Here | Why |
-|---|---|---|
-| `-s` in the host `CFLAGS` | dropped for the host build, kept for the PE cross build | Nix strips ELF output in `fixupPhase`; `-s` on the host link would fight the RPATH handling Wine needs. PE files are not touched by that phase, so the flag stays where it still does work. |
-| `LDFLAGS="-Wl,-O1,--sort-common,--as-needed"` | not set for the host link | nixpkgs owns host link flags (RPATH injection, hardening). `CROSSLDFLAGS` is applied unchanged. |
-| Gecko/Mono shipped as extracted tarballs | shipped as the `.msi` files | `dlls/appwiz.cpl/addons.c` looks for `wine-gecko-<ver>-<arch>.msi` under `$WINEDATADIR`; the `.msi` layout is what nixpkgs proves works. Same versions either way. |
-| `modules-load.d` and `binfmt.d` | native NixOS options in [`module.nix`](./module.nix) | Declarative equivalents, no vendored config files. |
-| `30-win32-aliases.conf` installed into fontconfig's `conf.avail` and linked into `conf.default` | the same file, read from the pinned PKGBUILD input, validated against fontconfig's DTD at build time and installed as `/etc/fonts/conf.d/30-win32-aliases.conf` | One source: the bytes are upstream's and the weekly lock refresh re-reads them. A conf.d drop-in is a complete document of its own; `fonts.fontconfig.localConf` is written raw by NixOS, so it stays free for the user's own aliases. |
-| builds against Arch's toolchain | pre-10 channels add `-std=gnu17` | Wine trees older than 10 use `bool` as an identifier, which C23 - gcc 15's default - reserves as a keyword. Same one-flag fix nixpkgs applies to its own older Wine variant. |
-
-## Channels
-
-[`sources.nix`](./sources.nix) holds the rolling `version` plus a `pins` map of frozen tags; the
-live truth is that file. Every channel hangs off the package as passthru.
-
-| Channel | Attribute | Tag |
-|---|---|---|
-| `latest` (also `packages.default`) | `pkgs.wine-cachyos` | newest `*-wine` tag |
-| `v<major>` | `pkgs.wine-cachyos.v10` | that major's newest packaged tag |
-
-`latest` rolls with every upstream `*-wine` tag; each `v<major>` freezes one
-major so a prefix built against it keeps working after upstream moves on. The
-rolling version always owns its own major, so when CachyOS cuts the first
-`cachyos-11.0-<date>-wine` tag the updater picks it up as `latest` + `v11` and,
-reading `majorPattern` in [`.github/update.json`](./.github/update.json), copies the last 10.x release
-into `pins` itself, so `v10` stays available with no hand edit. The rolling
-release and the pins sit between the `# std:rolling` and `# std:pins` markers
-that copy reads.
-
-## Staying in step with upstream
-
-Nothing this flake mirrors from upstream is left to be noticed by hand. Two
-checks run in `nix flake check`, so they gate every push, and also gate the
-daily updater's verification build - a drift cannot be committed, and the
-standard's workflow files the issue.
-
-- **`runtime-pins`** reads each channel's own source tree and asserts the Gecko
-  and Mono versions it ships are exactly the ones `dlls/appwiz.cpl/addons.c`
-  declares. Ship the wrong Mono and Wine silently asks the user to download it
-  at prefix creation while every build stays green - this makes that
-  impossible. It needs only the fetched source, so it fails in seconds rather
-  than after a full compile, and it is checked per channel because different
-  Wine majors want different runtimes.
-- **`upstream-recipe`** pins CachyOS's own `PKGBUILD` as a flake input, so the
-  weekly [`flake.lock`](./flake.lock) refresh re-reads it. It compares the Gecko, Mono and Xalia
-  versions and every `configure` flag against what this flake actually passes,
-  and names the file to edit when they diverge. The comparison only applies while
-  upstream's `_srctag` matches the packaged tag - when upstream moves first it
-  says so and passes, because the daily updater is what advances the tag.
-
-Dependencies themselves are covered by construction: every `--with-*` is passed
-explicitly, so a dependency that ever goes missing fails the build instead of
-being autodetected away into a silently reduced Wine.
-
-## Architecture
-
-`x86_64-linux` only. Upstream declares `arch=(x86_64)` and the build carries x86-specific flags (`-march=nocona`, `-mfpmath=sse`); the reason is recorded in [`.github/update.json`](./.github/update.json) `platforms`.
-
-<!-- BEGIN generated:installation -->
-## Installation
-
-Add as a flake input:
+Add the flake:
 
 ```nix
 {
@@ -112,7 +33,19 @@ Add as a flake input:
 }
 ```
 
-Then either take the package directly:
+Then import the module and switch it on. The overlay is needed, because the
+module installs `pkgs.wine-cachyos`.
+
+```nix
+{
+  imports = [ inputs.wine-cachyos.nixosModules.default ];
+  nixpkgs.overlays = [ inputs.wine-cachyos.overlays.default ];
+
+  programs.wine-cachyos.enable = true;
+}
+```
+
+Without the module, take the package directly:
 
 ```nix
 environment.systemPackages = [
@@ -120,41 +53,61 @@ environment.systemPackages = [
 ];
 ```
 
-or apply `inputs.wine-cachyos.overlays.default` and use `pkgs.wine-cachyos`.
+Or apply `inputs.wine-cachyos.overlays.default` and use `pkgs.wine-cachyos`.
 
-<!-- END generated:installation -->
+Either way `wine` is then on the path. Run a program with it, or point Bottles,
+Lutris or Heroic at it.
 
-## Usage
+## Options you are likely to set
 
-The NixOS module installs the package and wires the three system-level pieces upstream ships as Arch drop-ins:
+All of these sit under `programs.wine-cachyos`.
 
-```nix
-{
-  imports = [ inputs.wine-cachyos.nixosModules.default ];
-  nixpkgs.overlays = [ inputs.wine-cachyos.overlays.default ];
+| Option | Default | What it is for |
+|---|---|---|
+| `binfmt.enable` | off | Run Windows executables directly, through `binfmt_misc` |
+| `ntsync.enable` | on | Load the `ntsync` kernel module at boot |
+| `fontAliases.enable` | on | Install upstream's fontconfig aliases for the Win32 logical font names |
 
-  programs.wine-cachyos = {
-    enable = true;
-    ntsync.enable = true;      # default: load the ntsync kernel module
-    fontAliases.enable = true; # default: Win32 logical font names
-    binfmt.enable = false;     # default: do NOT claim every MZ binary
-  };
-}
-```
+Every option, with its type and default: [docs/OPTIONS.md](docs/OPTIONS.md).
 
-`binfmt.enable` is off by default because the registration is system-wide: it routes *every* Windows executable on the host through this Wine, not only the ones you meant.
+## Channels
 
-To stay on a frozen major instead of the rolling one, point the module at that channel:
+`pkgs.wine-cachyos` rolls with every upstream `*-wine` tag. Each Wine major
+also has a frozen channel, so a prefix built against it keeps working after
+upstream moves on. To stay on one, point the module at it:
 
 ```nix
 programs.wine-cachyos.package = pkgs.wine-cachyos.v10;
 ```
 
-Xalia (upstream's gamepad-driven UI navigator) is installed at `share/xalia` and is opt-in at runtime - Wine only starts it when `PROTON_USE_XALIA=1` is set in the environment.
+The channels that exist are the ones in [sources.nix](sources.nix).
+
+## Known limits
+
+- `x86_64-linux` only. Upstream builds for x86_64 alone and the build carries
+  x86-specific compiler flags.
+- Upstream publishes this Wine as source only, so it is built from the
+  `*-wine` git tags.
+- It is Wine only. DXVK, VKD3D-Proton and the Steam Linux Runtime glue belong
+  to `proton-cachyos`.
+- `ntsync.enable` needs a kernel that provides the `ntsync` module. Without
+  ntsync Wine falls back to esync/fsync.
+- `binfmt.enable` is system-wide. It routes every Windows executable on the
+  host through this Wine, not only the ones you meant, which is why it is off
+  by default.
+- Xalia, upstream's gamepad-driven UI navigator, is installed but off. Wine
+  starts it only when `PROTON_USE_XALIA=1` is set in the environment.
+
+## More
+
+- [docs/DESIGN.md](docs/DESIGN.md): how it relates to `proton-cachyos`, what
+  comes from nixpkgs, where it deviates from the Arch package and why
+- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md): building, the checks, how the
+  channels and the updater work
+- [SECURITY.md](SECURITY.md): how to report a vulnerability
 
 ## License
 
-The packaging is MIT. Wine itself is LGPL-2.1-or-later; Gecko, Mono, and Xalia carry their own licences and are fetched from their upstreams at build time - this flake redistributes nothing.
-
-<!-- BEGIN generated:footer -->
-<!-- END generated:footer -->
+The packaging is MIT. Wine itself is LGPL-2.1-or-later; Gecko, Mono, and Xalia
+carry their own licences and are fetched from their upstreams at build time.
+This flake redistributes nothing.

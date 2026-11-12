@@ -26,7 +26,14 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" ];
 
-      imports = [ inputs.std.flakeModules.base ];
+      imports = [
+        inputs.std.flakeModules.base
+        {
+          perSystem.std.option-reference = {
+            "NixOS module" = ./module.nix;
+          };
+        }
+      ];
 
       flake.overlays.default = import ./overlay.nix;
       flake.nixosModules.default = {
