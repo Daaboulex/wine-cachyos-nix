@@ -25,8 +25,9 @@ Reading `majorPattern` in [`.github/update.json`](../.github/update.json), it
 copies the last 10.x release into `pins` itself, so `v10` stays available with
 no hand edit.
 
-The rolling release and the pins sit between the `# std:rolling` and
-`# std:pins` markers that copy reads.
+The rolling release sits between the `# std:rolling-begin` and
+`# std:rolling-end` markers, and the pins between `# std:pins-begin` and
+`# std:pins-end`. That copy reads the first pair and writes inside the second.
 
 ## Staying in step with upstream
 

@@ -31,7 +31,6 @@ let
     value = mk tag spec;
   };
 
-  # Appended last so the rolling version always owns its own major.
   channels =
     lib.listToAttrs (
       lib.mapAttrsToList (tag: pin: entry tag (pinSpec pin)) sources.pins
